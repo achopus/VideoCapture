@@ -1,9 +1,9 @@
 import os
 import cv2
 import csv
+from datetime import datetime
 from clicker import get_arena
 from constants import *
-import time
 
 def create_csv(folder_out, name):
     path = os.path.join(folder_out, f"{name}.csv")
@@ -11,11 +11,12 @@ def create_csv(folder_out, name):
         writer = csv.writer(file)
         writer.writerow(["FrameID", "Time"])
 
-def write_to_csv(folder_out, name, frame_i):
-    path = os.path.join(folder_out, f"{name}.csv")
-    with open(path, mode='a', newline='') as file:
+def write_to_csv(csv_path, frame_i):
+    now = datetime.now()
+    formatted_time = now.strftime('%Y%m%d%H%M%S') + '0000'
+    with open(csv_path, mode='a', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow([frame_i, time.time()])
+        writer.writerow([frame_i, formatted_time])
 
 def check_name(name):
     forbidden_characters = [" ", ".", ",", "-"]
@@ -56,6 +57,7 @@ def main(folder_out: str, experiment_name: str):
     
     put_text_info = lambda frame_name, text: cv2.putText(frame_name.copy(), text, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
     frame_i = 0
+    csv_path = os.path.join(folder_out, f"{experiment_name}.csv")
     while True:
         # Display the frame
         ret, frame = cap.read()
@@ -63,13 +65,14 @@ def main(folder_out: str, experiment_name: str):
         frame = cv2.warpPerspective(frame, M, size_old)[y0-B:y1+B, x0-B:x1+B, :]
         writer.write(frame)
         if frame_i % (5 * fps) == 0:
-            write_to_csv(folder_out, experiment_name, frame_i)
+            write_to_csv(csv_path, frame_i)
         cv2.imshow('Video recording', put_text_info(frame, "q - end recording"))
     
         frame_i += 1
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-        
+    
+    write_to_csv(csv_path, frame_i)
     cap.release()
     writer.release()
     cv2.destroyAllWindows()

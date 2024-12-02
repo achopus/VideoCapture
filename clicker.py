@@ -104,6 +104,3 @@ def get_arena():
     cap.release()
     cv2.destroyAllWindows()
     return M
-
-if __name__ == "__main__":
-    get_arena()
