@@ -30,7 +30,7 @@ def main(folder_out: str, experiment_name: str):
     create_csv(folder_out, experiment_name)
     M = get_arena()
     
-    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+    cap = cv2.VideoCapture(0, CAPTURE_MODE)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
     if not cap.isOpened():

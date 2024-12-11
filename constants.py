@@ -1,4 +1,5 @@
 import numpy as np
+import cv2
 
 B = 64
 S = 1024
@@ -17,3 +18,6 @@ PAD = 2 * B
 
 frame_width = S + 2 * B
 frame_height = S + 2 * B
+
+
+CAPTURE_MODE = cv2.CAP_DSHOW

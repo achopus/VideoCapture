@@ -36,7 +36,7 @@ def get_arena():
         return frame_copy
 
     # Open video file or capture from camera
-    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+    cap = cv2.VideoCapture(0, CAPTURE_MODE)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
