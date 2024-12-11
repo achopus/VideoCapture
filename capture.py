@@ -1,7 +1,7 @@
 import os
 import cv2
 import csv
-from datetime import datetime, timedelta
+from datetime import datetime
 from clicker import get_arena
 from constants import *
 
