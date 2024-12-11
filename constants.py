@@ -1,15 +1,19 @@
 import numpy as np
 
-DEFINED_CORNERS = np.array([[ 400,   50],
-                            [1350,   50],
-                            [1350, 1000],
-                            [ 400, 1000]])
+B = 64
+S = 1024
+
+S-= 2 * B
 
 
-y0 = 50
-y1 = 1000
-x0 = 400
-x1 = 1350
-B = 50
-frame_width = (x1 - x0) + 2 * B
-frame_height = (y1 - y0) + 2 * B
+DEFINED_CORNERS = np.array([[0,     0],
+                            [S,   0],
+                            [S, S],
+                            [0,   S]])
+
+DEFINED_CORNERS += B
+
+PAD = 2 * B
+
+frame_width = S + 2 * B
+frame_height = S + 2 * B

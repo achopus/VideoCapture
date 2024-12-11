@@ -1,7 +1,7 @@
 import os
 import cv2
 import csv
-from datetime import datetime
+from datetime import datetime, timedelta
 from clicker import get_arena
 from constants import *
 
@@ -12,11 +12,10 @@ def create_csv(folder_out, name):
         writer.writerow(["FrameID", "Time"])
 
 def write_to_csv(csv_path, frame_i):
-    now = datetime.now()
-    formatted_time = now.strftime('%Y%m%d%H%M%S') + '0000'
+    current_time = datetime.now().strftime('%Y%m%d%H%M%S%f')
     with open(csv_path, mode='a', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow([frame_i, formatted_time])
+        writer.writerow([frame_i, current_time])
 
 def check_name(name):
     forbidden_characters = [" ", ".", ",", "-"]
@@ -58,15 +57,29 @@ def main(folder_out: str, experiment_name: str):
     put_text_info = lambda frame_name, text: cv2.putText(frame_name.copy(), text, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
     frame_i = 0
     csv_path = os.path.join(folder_out, f"{experiment_name}.csv")
+    start_time = datetime.now()
     while True:
         # Display the frame
         ret, frame = cap.read()
         if not ret: break
-        frame = cv2.warpPerspective(frame, M, size_old)[y0-B:y1+B, x0-B:x1+B, :]
+        frame = cv2.warpPerspective(frame, M, size_old)
+        frame = cv2.copyMakeBorder(
+                frame,
+                top=PAD,
+                bottom=PAD,
+                left=PAD,
+                right=PAD,
+                borderType=cv2.BORDER_CONSTANT,
+                value=(0, 0, 0)  # Black padding
+            )
+        frame = frame[PAD:PAD+S+2*B, PAD:PAD+S+2*B, :]
         writer.write(frame)
         if frame_i % (5 * fps) == 0:
             write_to_csv(csv_path, frame_i)
-        cv2.imshow('Video recording', put_text_info(frame, "q - end recording"))
+        current_time = datetime.now()
+        elapsed_time = current_time - start_time
+        formatted_time = str(elapsed_time).split('.')[0]  # Remove microseconds
+        cv2.imshow('Video recording', put_text_info(frame, f"q - end recording | {formatted_time}"))
     
         frame_i += 1
         if cv2.waitKey(1) & 0xFF == ord('q'):

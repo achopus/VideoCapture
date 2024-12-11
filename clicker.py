@@ -29,7 +29,7 @@ def get_arena():
     def plot_info_text(frame, is_transformed: bool):
         frame_copy = frame.copy()
         if is_transformed:
-            text = "r - reset selection | q - finalize selection (long press)"
+            text = "r - reset selection (long press) | q - finalize selection"
         else:
             text = "Left click = Select corner. Go clockwise, starting at 'Top Left' corner. | q - end selection (no transformation)"
         put_text_info(frame_copy, text)
@@ -58,7 +58,7 @@ def get_arena():
     cv2.namedWindow('Frame')
     cv2.moveWindow('Frame', 0, 0)
     #cv2.moveWindow('Frame', (1920 - 1600) // 2, (1080 - 900) // 2)
-    cv2.resizeWindow('Frame', 1600, 900)
+    #cv2.resizeWindow('Frame', 1600, 900)
     cv2.setWindowProperty('Frame', cv2.WND_PROP_TOPMOST, 1)
     cv2.setWindowProperty('Frame', cv2.WINDOW_NORMAL, 1)
     cv2.setMouseCallback('Frame', select_points)
@@ -79,7 +79,17 @@ def get_arena():
         
         #cv2.namedWindow('Frame', cv2.WINDOW_FULLSCREEN)
         if points_selected:
-            frame = cv2.warpPerspective(frame, M, size_old)[y0-B:y1+B, x0-B:x1+B, :]
+            frame = cv2.warpPerspective(frame, M, size_old)
+            frame = cv2.copyMakeBorder(
+                frame,
+                top=PAD,
+                bottom=PAD,
+                left=PAD,
+                right=PAD,
+                borderType=cv2.BORDER_CONSTANT,
+                value=(0, 0, 0)  # Black padding
+            )
+            frame = frame[PAD:PAD+S+2*B, PAD:PAD+S+2*B, :]
             cv2.imshow('Frame', plot_info_text(frame, is_transformed=True))
             cv2.setWindowProperty('Frame', cv2.WINDOW_NORMAL, 1)
         else:
@@ -93,14 +103,17 @@ def get_arena():
             M = cv2.getPerspectiveTransform(np.float32(corners), np.float32(DEFINED_CORNERS))
             
         
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
         if cv2.waitKey(1) & 0xFF == ord('r'):
             points_selected = False
             points = []
         
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
         
     # Release the video capture and close windows
     cap.release()
     cv2.destroyAllWindows()
     return M
+
+if __name__ == "__main__":
+    get_arena()
